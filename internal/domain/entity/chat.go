@@ -24,6 +24,20 @@ type Chat struct {
 	Config               *ChatConfig
 }
 
+func (c *Chat) Validate() error {
+	if c.UserId == "" {
+		return errors.New("user id is empty")
+	}
+	if c.Status != "active" && c.Status != "ended" {
+		return errors.New("invalid status")
+	}
+	if c.Config.Temperature < 0 || c.Config.Temperature > 2 {
+		return errors.New("invalid Temperature")
+	}
+	//more validations for config
+	return nil
+}
+
 func (c *Chat) AddMessage(m *Message) error {
 	if c.Status == "ended" {
 		return errors.New("chat is ended. not more messages allowed")
@@ -39,6 +53,18 @@ func (c *Chat) AddMessage(m *Message) error {
 		c.RefreshTokenUsage()
 	}
 	return nil
+}
+
+func (c *Chat) GetMessages() []*Message {
+	return c.Messages
+}
+
+func (c *Chat) CountMessages() int {
+	return len(c.Messages)
+}
+
+func (c *Chat) End() {
+	c.Status = "ended"
 }
 
 func (c *Chat) RefreshTokenUsage() {
